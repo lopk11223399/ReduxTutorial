@@ -21,15 +21,11 @@
 
 // export default todoListReducer
 
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
-export default createSlice({
+const todosSlice = createSlice({
 	name: 'todoList',
-	initialState: [
-		{ id: 1, name: 'Learn Yoga', completed: false, priority: 'Medium' },
-		{ id: 2, name: 'Learn Redux', completed: true, priority: 'High' },
-		{ id: 3, name: 'Learn JavaScript', completed: false, priority: 'Low' },
-	],
+	initialState: { status: 'idle', todos: [] }, // {} => { status: '', todos: [] }
 	reducers: {
 		addTodo: (state, action) => {
 			// mutation: thao tác trực tiếp lên obj hay arr
@@ -40,4 +36,79 @@ export default createSlice({
 			if (currentTodo) currentTodo.completed = !currentTodo.completed
 		},
 	},
+	extraReducers: builder => {
+		builder.addCase(fetchTodos.pending, (state, action) => {
+			state.status = 'loading'
+		})
+
+		builder.addCase(fetchTodos.fulfilled, (state, action) => {
+			state.status = 'idle'
+			state.todos = action.payload
+		})
+
+		builder.addCase(fetchTodos.rejected, (state, action) => {})
+
+		builder.addCase(addNewTodo.fulfilled, (state, action) => {
+			state.todos.push(action.payload)
+		})
+
+		builder.addCase(updateTodo.fulfilled, (state, action) => {
+			let currentTodo = state.todos.find(todo => todo.id === action.payload)
+			currentTodo = action.payload
+		})
+	},
 })
+
+export const fetchTodos = createAsyncThunk('todos/fetchTodos', async () => {
+	const res = await fetch('/api/todos')
+	const data = await res.json()
+	return data.todos
+})
+
+export const addNewTodo = createAsyncThunk(
+	'todos/addNewTodo',
+	async newTodo => {
+		const res = await fetch('/api/todos', {
+			method: 'POST',
+			body: JSON.stringify(newTodo),
+		})
+		const data = await res.json()
+		return data.todos
+	},
+)
+
+export const updateTodo = createAsyncThunk(
+	'todos/updateTodo',
+	async updateTodo => {
+		const res = await fetch('/api/updateTodo', {
+			method: 'POST',
+			body: JSON.stringify(updateTodo),
+		})
+		const data = await res.json()
+		return data.todos
+	},
+)
+
+/*
+ => todos/fetchTodos/pending
+ => todos/fetchTodos/fulfilled
+ => todos/fetchTodos/rejected
+ */
+
+export default todosSlice
+
+// action va action creators () => { return action }
+// thunk action (function) va thunk action creators () => { return thunk action }
+
+// export function addTodo(todo) {
+// 	return function addTodoThunk(dispatch, getState) {
+// 		console.log('[add Todo Thunk]', getState())
+// 		console.log({ todo })
+
+// 		// custom
+// 		todo.name = 'hoang'
+// 		dispatch(todosSlice.actions.addTodo(todo))
+
+// 		console.log('[add Todo Thunk]', getState())
+// 	}
+// }
