@@ -1,29 +1,52 @@
-const initState = {
-	sreach: '',
-	status: 'All',
-	priorities: [],
-}
+// const initState = {
+// 	sreach: '',
+// 	status: 'All',
+// 	priorities: [],
+// }
 
-const filtersReducer = (state = initState, action) => {
-	switch (action.type) {
-		case 'filters/searchFilterChange':
-			return {
-				...state,
-				sreach: action.payload,
-			}
-		case 'filters/statusFilterChange':
-			return {
-				...state,
-				status: action.payload,
-			}
-		case 'filters/prioritiesFilterChange':
-			return {
-				...state,
-				priorities: action.payload,
-			}
-		default:
-			return state
-	}
-}
+// const filtersReducer = (state = initState, action) => {
+// 	switch (action.type) {
+// 		case 'filters/searchFilterChange':
+// 			return {
+// 				...state,
+// 				sreach: action.payload,
+// 			}
+// 		case 'filters/statusFilterChange':
+// 			return {
+// 				...state,
+// 				status: action.payload,
+// 			}
+// 		case 'filters/prioritiesFilterChange':
+// 			return {
+// 				...state,
+// 				priorities: action.payload,
+// 			}
+// 		default:
+// 			return state
+// 	}
+// }
 
-export default filtersReducer
+// export default filtersReducer
+
+import { createSlice } from '@reduxjs/toolkit'
+
+export default createSlice({
+	name: 'filters',
+	initialState: {
+		sreach: '',
+		status: 'All',
+		priorities: [],
+	},
+	reducers: {
+		searchFilterChange: (state, action) => {
+			// mutation: thao tác trực tiếp lên obj hay arr
+			state.search = action.payload
+		}, // Tạo ra 1 action creators => { type: 'name/reducers[key]' <=> 'filters/searchFilterChange' }
+		statusFilterChange: (state, action) => {
+			state.status = action.payload
+		},
+		prioritiesFilterChange: (state, action) => {
+			state.priorities = action.payload
+		},
+	},
+})
